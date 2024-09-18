@@ -1,4 +1,4 @@
-# @foxglove/avl
+# @lichtblick/avl
 
 > _Adelson-Velsky-Landis (AVL) self-balancing binary trees in TypeScript_
 
@@ -9,7 +9,7 @@
 ## Usage
 
 ```Typescript
-import { AVLTree } from "@foxglove/avl";
+import { AVLTree } from "@lichtblick/avl";
 
 const tree = new AVLTree<number, string>();
 tree.set(0, "zero");
@@ -42,14 +42,10 @@ bigintTree.set(1n, "one");
 
 ## License
 
-@foxglove/avl is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+@lichtblick/avl is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Releasing
 
 1. Run `yarn version --[major|minor|patch]` to bump version
 2. Run `git push && git push --tags` to push new tag
 3. GitHub Actions will take care of the rest
-
-## Stay in touch
-
-Join our [Slack channel](https://foxglove.dev/slack) to ask questions, share feedback, and stay up to date on what our team is working on.
