@@ -11,29 +11,29 @@ function DEFAULT_COMPARE<K>(a: K, b: K) {
  * operation.
  */
 export class AVLTree<K, V> {
-  private readonly _comparator: (a: K, b: K) => number;
-  private _root?: AVLNode<K, V>;
-  private _size: number;
+  readonly #_comparator: (a: K, b: K) => number;
+  #_root?: AVLNode<K, V>;
+  #_size: number;
 
   constructor(comparator?: (a: K, b: K) => number) {
-    this._comparator = comparator ?? DEFAULT_COMPARE;
-    this._size = 0;
+    this.#_comparator = comparator ?? DEFAULT_COMPARE;
+    this.#_size = 0;
   }
 
   /**
    * Number of nodes
    */
   get size(): number {
-    return this._size;
+    return this.#_size;
   }
 
   /**
    * Clear the tree
    * @return {AVLTree}
    */
-  clear(): AVLTree<K, V> {
-    this._root = undefined;
-    this._size = 0;
+  clear(): this {
+    this.#_root = undefined;
+    this.#_size = 0;
     return this;
   }
 
@@ -41,9 +41,9 @@ export class AVLTree<K, V> {
    * Whether the tree contains a node with the given key
    */
   has(key: K): boolean {
-    if (this._root) {
-      let node: AVLNode<K, V> | undefined = this._root;
-      const comparator = this._comparator;
+    if (this.#_root) {
+      let node: AVLNode<K, V> | undefined = this.#_root;
+      const comparator = this.#_comparator;
       while (node) {
         const cmp = comparator(key, node.key);
         if (cmp === 0) {
@@ -62,7 +62,7 @@ export class AVLTree<K, V> {
    * Returns all keys in order
    */
   *keys(): IterableIterator<K> {
-    let current = this._root;
+    let current = this.#_root;
     const s: AVLNode<K, V>[] = [];
     let done = false;
 
@@ -86,7 +86,7 @@ export class AVLTree<K, V> {
    * Returns all values in order
    */
   *values(): IterableIterator<V> {
-    let current = this._root;
+    let current = this.#_root;
     const s: AVLNode<K, V>[] = [];
     let done = false;
 
@@ -110,7 +110,7 @@ export class AVLTree<K, V> {
    * Returns all key/value pairs in order
    */
   *entries(): IterableIterator<[K, V]> {
-    let current = this._root;
+    let current = this.#_root;
     const s: AVLNode<K, V>[] = [];
     let done = false;
 
@@ -134,7 +134,7 @@ export class AVLTree<K, V> {
    * Returns the entry with the minimum key
    */
   minEntry(): [K, V] | undefined {
-    let node = this._root;
+    let node = this.#_root;
     if (!node) {
       return undefined;
     }
@@ -148,7 +148,7 @@ export class AVLTree<K, V> {
    * Returns the entry with the maximum key
    */
   maxEntry(): [K, V] | undefined {
-    let node = this._root;
+    let node = this.#_root;
     if (!node) {
       return undefined;
     }
@@ -162,7 +162,7 @@ export class AVLTree<K, V> {
    * Minimum key
    */
   minKey(): K | undefined {
-    let node = this._root;
+    let node = this.#_root;
     if (!node) {
       return undefined;
     }
@@ -176,7 +176,7 @@ export class AVLTree<K, V> {
    * Maximum key
    */
   maxKey(): K | undefined {
-    let node = this._root;
+    let node = this.#_root;
     if (!node) {
       return undefined;
     }
@@ -190,7 +190,7 @@ export class AVLTree<K, V> {
    * Removes and returns the entry with smallest key
    */
   shift(): [K, V] | undefined {
-    let node = this._root;
+    let node = this.#_root;
     let returnValue: [K, V] | undefined;
     if (node) {
       while (node.left) {
@@ -206,7 +206,7 @@ export class AVLTree<K, V> {
    * Removes and returns the entry with largest key
    */
   pop(): [K, V] | undefined {
-    let node = this._root;
+    let node = this.#_root;
     let returnValue: [K, V] | undefined;
     if (node) {
       while (node.right) {
@@ -222,9 +222,9 @@ export class AVLTree<K, V> {
    * Search for an entry by key
    */
   get(key: K): V | undefined {
-    const compare = this._comparator;
+    const compare = this.#_comparator;
 
-    let node = this._root;
+    let node = this.#_root;
     while (node) {
       const cmp = compare(key, node.key);
       if (cmp === 0) {
@@ -242,8 +242,8 @@ export class AVLTree<K, V> {
   /**
    * Execute a callback for each key/value entry in order
    */
-  forEach(callbackfn: (value: V, key: K, tree: AVLTree<K, V>) => void): AVLTree<K, V> {
-    let current = this._root;
+  forEach(callbackfn: (value: V, key: K, tree: AVLTree<K, V>) => void): this {
+    let current = this.#_root;
     const s: AVLNode<K, V>[] = [];
     let done = false;
 
@@ -276,14 +276,10 @@ export class AVLTree<K, V> {
   /**
    * Walk key range from `low` to `high` in order
    */
-  range(
-    low: K,
-    high: K,
-    callbackfn: (value: V, key: K, tree: AVLTree<K, V>) => void,
-  ): AVLTree<K, V> {
+  range(low: K, high: K, callbackfn: (value: V, key: K, tree: AVLTree<K, V>) => void): this {
     const Q: AVLNode<K, V>[] = [];
-    const compare = this._comparator;
-    let node = this._root;
+    const compare = this.#_comparator;
+    let node = this.#_root;
 
     while (Q.length !== 0 || node) {
       if (node) {
@@ -307,17 +303,17 @@ export class AVLTree<K, V> {
   }
 
   findLessThan(key: K): [K, V] | undefined {
-    let node = this.findGreaterThanOrEqualNode(key);
+    let node = this.#findGreaterThanOrEqualNode(key);
     if (!node) {
       // Check if there is any key less than `key`
-      node = this._root;
+      node = this.#_root;
       if (!node) {
         return undefined;
       }
       while (node.right) {
         node = node.right;
       }
-      return this._comparator(node.key, key) < 0 ? [node.key, node.value] : undefined;
+      return this.#_comparator(node.key, key) < 0 ? [node.key, node.value] : undefined;
     }
 
     // Return the node just before the first node with key greater than or equal to `key`, if any
@@ -326,21 +322,21 @@ export class AVLTree<K, V> {
   }
 
   findLessThanOrEqual(key: K): [K, V] | undefined {
-    let node = this.findGreaterThanOrEqualNode(key);
+    let node = this.#findGreaterThanOrEqualNode(key);
     if (!node) {
       // Check if there is any key less than `key`
-      node = this._root;
+      node = this.#_root;
       if (!node) {
         return undefined;
       }
       while (node.right) {
         node = node.right;
       }
-      return this._comparator(node.key, key) < 0 ? [node.key, node.value] : undefined;
+      return this.#_comparator(node.key, key) < 0 ? [node.key, node.value] : undefined;
     }
 
     // Check if the found node is an exact match
-    if (this._comparator(node.key, key) === 0) {
+    if (this.#_comparator(node.key, key) === 0) {
       return [node.key, node.value];
     }
 
@@ -351,8 +347,8 @@ export class AVLTree<K, V> {
 
   findGreaterThan(key: K): [K, V] | undefined {
     const Q: AVLNode<K, V>[] = [];
-    const compare = this._comparator;
-    let node = this._root;
+    const compare = this.#_comparator;
+    let node = this.#_root;
 
     while (Q.length !== 0 || node) {
       if (node) {
@@ -374,14 +370,14 @@ export class AVLTree<K, V> {
   }
 
   findGreaterThanOrEqual(key: K): [K, V] | undefined {
-    const node = this.findGreaterThanOrEqualNode(key);
+    const node = this.#findGreaterThanOrEqualNode(key);
     return node ? [node.key, node.value] : undefined;
   }
 
-  private findGreaterThanOrEqualNode(key: K): AVLNode<K, V> | undefined {
+  #findGreaterThanOrEqualNode(key: K): AVLNode<K, V> | undefined {
     const Q: AVLNode<K, V>[] = [];
-    const compare = this._comparator;
-    let node = this._root;
+    const compare = this.#_comparator;
+    let node = this.#_root;
 
     while (Q.length !== 0 || node) {
       if (node) {
@@ -406,8 +402,8 @@ export class AVLTree<K, V> {
    * Insert a new key/value pair into the tree or update an existing entry
    */
   set(key: K, value: V): this {
-    if (!this._root) {
-      this._root = {
+    if (!this.#_root) {
+      this.#_root = {
         parent: undefined,
         left: undefined,
         right: undefined,
@@ -415,12 +411,12 @@ export class AVLTree<K, V> {
         key,
         value,
       };
-      this._size++;
+      this.#_size++;
       return this;
     }
 
-    const compare = this._comparator;
-    let node: AVLNode<K, V> | undefined = this._root;
+    const compare = this.#_comparator;
+    let node: AVLNode<K, V> | undefined = this.#_root;
     let parent: AVLNode<K, V> | undefined;
     let cmp = 0;
 
@@ -473,8 +469,8 @@ export class AVLTree<K, V> {
         }
         newRoot = rotateLeft(parent);
 
-        if (parent === this._root) {
-          this._root = newRoot;
+        if (parent === this.#_root) {
+          this.#_root = newRoot;
         }
         break;
       } else if (parent.balanceFactor > 1) {
@@ -483,15 +479,15 @@ export class AVLTree<K, V> {
         }
         newRoot = rotateRight(parent);
 
-        if (parent === this._root) {
-          this._root = newRoot;
+        if (parent === this.#_root) {
+          this.#_root = newRoot;
         }
         break;
       }
       parent = parent.parent;
     }
 
-    this._size++;
+    this.#_size++;
     return this;
   }
 
@@ -499,12 +495,12 @@ export class AVLTree<K, V> {
    * Finds the first matching node by key and removes it
    */
   delete(key: K): boolean {
-    if (!this._root) {
+    if (!this.#_root) {
       return false;
     }
 
-    let node: AVLNode<K, V> | undefined = this._root;
-    const compare = this._comparator;
+    let node: AVLNode<K, V> | undefined = this.#_root;
+    const compare = this.#_comparator;
     let cmp = 0;
 
     while (node) {
@@ -582,8 +578,8 @@ export class AVLTree<K, V> {
         }
         newRoot = rotateLeft(parent);
 
-        if (parent === this._root) {
-          this._root = newRoot;
+        if (parent === this.#_root) {
+          this.#_root = newRoot;
         }
         parent = newRoot;
       } else if (parent.balanceFactor > 1) {
@@ -592,19 +588,19 @@ export class AVLTree<K, V> {
         }
         newRoot = rotateRight(parent);
 
-        if (parent === this._root) {
-          this._root = newRoot;
+        if (parent === this.#_root) {
+          this.#_root = newRoot;
         }
         parent = newRoot;
       }
 
-      const parentBalanceFactor = parent?.balanceFactor;
+      const parentBalanceFactor = parent.balanceFactor;
       if (parentBalanceFactor === -1 || parentBalanceFactor === 1) {
         break;
       }
 
       pp = parent;
-      parent = parent?.parent;
+      parent = parent.parent;
     }
 
     if (node.parent) {
@@ -615,11 +611,11 @@ export class AVLTree<K, V> {
       }
     }
 
-    if (node === this._root) {
-      this._root = undefined;
+    if (node === this.#_root) {
+      this.#_root = undefined;
     }
 
-    this._size--;
+    this.#_size--;
     return true;
   }
 
@@ -627,6 +623,6 @@ export class AVLTree<K, V> {
    * Returns a string representation of the tree - primitive horizontal print-out
    */
   toString(printEntry?: (entry: [K, V]) => string): string {
-    return printNodes(this._root, printEntry).trimEnd();
+    return printNodes(this.#_root, printEntry).trimEnd();
   }
 }
